@@ -23,7 +23,7 @@ while running:
         else:
             gauge = 0
             score = 0
-            print("문제풀이 성공")
+            # print("문제풀이 성공")
         if event.typev == pygame.KEYUP:
             if event.key == pygame.K_SPACE:
                 score = 0
