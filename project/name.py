@@ -5,8 +5,13 @@ import random
 pygame.init()
 
 #화면크기 설정
+
 screen_width = 800 # 가로크기
 screen_height = 600 # 세로크기
+
+screen_width = 640 # 가로크기
+screen_height = 480 # 세로크기
+
 screen = pygame.display.set_mode((screen_width, screen_height))
 
 
@@ -14,9 +19,22 @@ pygame.display.set_caption("앱이름")
 
 #이미지들
 
+
 bg = pygame.image.load("pygame/source/bg.png")
 
 character = pygame.image.load("pygame/source/character0.png", "pygame/source/character1.png")
+
+bg = pygame.image.load("pygame/source/bg.png")
+bg2 = pygame.image.load("pygame/source/bg2.png")
+# bg2_size = character.get_rect().size #스프라이트를 사각형 형태로 가로세로 크기 구함
+bg2_width = 90 #위에서 얻은 튜플의 1번째 값. 자동생성
+bg2_height = 480#위에서 얻은 튜플의 2번째 값. 자동생성.
+bg2_xPos = screen_width - bg2_width #화면 가로 정중앙
+bg2_yPos = 0 #화면 세로 맨아래
+
+
+character = pygame.image.load("pygame/source/character.png")
+
 character_size = character.get_rect().size #스프라이트를 사각형 형태로 가로세로 크기 구함
 character_width = character_size[0] #위에서 얻은 튜플의 1번째 값. 자동생성
 character_height = character_size[1] #위에서 얻은 튜플의 2번째 값. 자동생성.
@@ -25,7 +43,11 @@ character_yPos = screen_height - character_height * 2 #화면 세로 맨아래
 
 
 
+
 enemy = pygame.image.load("pygame/source/enemy0.png", "pygame/source/enemy1.png")
+
+enemy = pygame.image.load("pygame/source/enemy.png")
+
 enemy_size = enemy.get_rect().size #스프라이트를 사각형 형태로 가로세로 크기 구함
 enemy_width = enemy_size[0] #위에서 얻은 튜플의 1번째 값. 자동생성
 enemy_height = enemy_size[1] #위에서 얻은 튜플의 2번째 값. 자동생성.
@@ -77,7 +99,11 @@ while running:
     #5. 화면에 그리기
     screen.fill((255, 255, 255))
     # screen.blit
+
     screen.blit(bg, (bg_xPos, bg_yPos)) # blit = 배경 그리기
+
+    screen.blit(bg2, (bg2_xPos, bg2_yPos)) # blit = 배경 그리기
+
     screen.blit(character, (character_xPos, character_yPos)) #주인공 그리기
     screen.blit(enemy, (enemy_xPos, enemy_yPos))
     screen.blit(time_screen, (10, 10))
@@ -86,7 +112,11 @@ while running:
     pygame.display.update() # 게임화면을 새로고침해줌.
 
 #종료시간 살짝 늦추기
+
 pygame.time.delay(2000)
+
+# pygame.time.delay(2000)
+
 
 #종료처리
 pygame.quit()
