@@ -1,6 +1,8 @@
+import random
+
 eng = ["cat","car","see","win","can","bee","apple","word","good","hit"]
 kor = ["고양이","차","보다","이기다","캔","벌","사과","단어","좋은","치다"]
-ok = 0
+score = 0
 running = True
 
 while running:
