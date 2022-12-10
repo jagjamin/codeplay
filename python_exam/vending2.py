@@ -29,7 +29,7 @@ while True:
         elif int(money) >= drinks[pick]:
             print(f"주문하신 {pick} 나왔습니다")    
             money = int(money) - drinks[pick]
-            drinks[pick] + money2
+            drinks[pick] +  money2
         if drinks[pick] == "솔의 눈"
         else:
             print("잔액이 부족합니다")
