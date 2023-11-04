@@ -20,9 +20,8 @@ title = top3.findAll("span", attrs = {"class" : "ContentTitle__title--e3qXt"})
 author = top3.findAll("a", attrs = {"class" : "ContentAuthor__author--CTAAP"})
 rate = top3.findAll("span", attrs = {"class" : "Rating__star_area--dFzsb"})
 
-print("----------토요 웹툰 추천 3개----------")
+print("----------토요 웹툰 추천 3개-----------")
 
 for i in range(len(title)):
     print(f"{i+1} - {title[i].text} || {author[i].text} || {rate[i].text[2:]}")
 
-    
