@@ -3,6 +3,7 @@ import sys
 import random
 import time
 
+
 # 초기화
 pygame.init()
 pygame.mixer.init()  # 사운드를 위한 초기화
@@ -19,25 +20,34 @@ red = (255, 0, 0)
 blue = (0, 0, 255)
 green = (0, 255, 0)
 
-# 폰트 설정
-font = pygame.font.Font(None, 36)
+# 폰트 설정 (직접 폰트 파일 경로 지정)
+font_path = "ai_project/storytelling/font/k_font.ttf"  # 여기에 폰트 파일 경로를 입력하세요
+font = pygame.font.Font(font_path, 36)
+
 
 # 플레이어 설정
 player_width, player_height = 30, 30
 player_x = (width - player_width) // 2
 player_y = height - player_height - 20
 player_speed = 5
+player_image_path = "ai_project\storytelling\image\994499345CC6CE7E03-removebg-preview.png"  # 이미지 파일 경로
+player_image = pygame.image.load(player_image_path)
+player_image = pygame.transform.scale(player_image, (player_width, player_height))
 
 # 총알 설정
 bullet_width, bullet_height = 5, 15
-bullet_speed = 8
+bullet_speed = 4
 bullets = []
 shoot_delay = 0
 
 # 적 설정
 enemy_width, enemy_height = 30, 30
-enemy_speed = 2
+enemy_speed = 1
 enemies = []
+enemy_image_path = "ai_project\storytelling\image\스크린샷_2024-01-27_121632-removebg-preview.png"  # 이미지 파일 경로
+enemy_image = pygame.image.load(enemy_image_path)
+enemy_image = pygame.transform.scale(enemy_image, (enemy_width, enemy_height))
+
 
 # 목숨 설정
 lives = 3
@@ -47,15 +57,25 @@ life_image = pygame.transform.scale(life_image, (20, 20))  # 이미지 크기 �
 # 점수 초기화
 score = 0
 
-# 시간 초기화
-start_time = pygame.time.get_ticks()
-
 # 사운드 로드
 shoot_sound = pygame.mixer.Sound("ai_project\storytelling\sounds\Pew.wav")  # 총알 발사 사운드
 explosion_sound = pygame.mixer.Sound("ai_project\storytelling\sounds\Bonk.wav")  # 폭발 사운드
 
 # 게임 상태
 is_game_over = False
+
+
+def reset_game():
+    global player_x, player_y, bullets, enemies, score, lives, is_game_over
+    player_x = (width - player_width) // 2
+    player_y = height - player_height - 20
+    bullets = []
+    enemies = []
+    score = 0
+    lives = 3
+    is_game_over = False
+    for _ in range(initial_enemies_count):
+        spawn_enemy()
 
 # 적 생성 함수
 def spawn_enemy():
@@ -85,6 +105,19 @@ def handle_enemy_hit(bullet, enemy):
         spawn_enemy()
         increase_score()
 
+# 플레이어와 적 충돌 처리 함수
+def handle_player_enemy_collision():
+    global lives, is_game_over
+    for enemy in enemies[:]:
+        if is_collision({'x': player_x, 'y': player_y}, enemy) and enemy['alive']:
+            explosion_sound.play()  # 폭발 사운드 재생
+            enemies.remove(enemy)
+            spawn_enemy()
+            lives -= 1
+            if lives <= 0:
+                is_game_over = True
+            return  # 목숨을 한 번만 잃게 하기 위해 루프 탈출
+
 # 목숨 표시 함수
 def display_lives():
     for i in range(lives):
@@ -97,6 +130,25 @@ def display_game_over():
     game_over_text = font.render("게임 오버", True, red)
     game_over_rect = game_over_text.get_rect(center=(width // 2, height // 2))
     screen.blit(game_over_text, game_over_rect)
+
+# 게임 초기화 부분에 적 생성
+initial_enemies_count = 5
+for _ in range(initial_enemies_count):
+    spawn_enemy()
+
+
+# 총알 발사 간격 설정
+shoot_delay_max = 15
+shoot_delay_increment = 10
+
+# 점수 증가 함수 수정
+def increase_score():
+    global score, shoot_delay_max
+    score += 1
+    if score % 100 == 0:  # 점수가 100의 배수일 때
+        shoot_delay_max += shoot_delay_increment
+
+
 
 # 게임 루프
 while True:
@@ -111,6 +163,9 @@ while True:
 
     if is_game_over:
         display_game_over()
+        keys = pygame.key.get_pressed()
+        if keys[pygame.K_r]:
+            reset_game()
         pygame.display.flip()
         continue
 
@@ -125,7 +180,7 @@ while True:
         bullet_x = player_x + (player_width - bullet_width) // 2
         bullet_y = player_y
         bullets.append({'x': bullet_x, 'y': bullet_y})
-        shoot_delay = 15
+        shoot_delay = shoot_delay_max  # 발사 간격 적용
 
     if shoot_delay > 0:
         shoot_delay -= 1
@@ -135,18 +190,13 @@ while True:
         if bullet['y'] < 0:
             bullets.remove(bullet)
 
+    # 적과 총알 충돌 처리
     for enemy in enemies[:]:
         for bullet in bullets[:]:
             handle_enemy_hit(bullet, enemy)
-            if is_collision({'x': player_x, 'y': player_y}, enemy) and enemy['alive']:
-                explosion_sound.play()  # 폭발 사운드 재생
-                enemies.remove(enemy)
-                spawn_enemy()
-                lives -= 1
-                if lives == 0:
-                    is_game_over = True
 
-    
+    # 플레이어와 적 충돌 처리
+    handle_player_enemy_collision()
 
     screen.fill(white)
     pygame.draw.rect(screen, blue, [player_x, player_y, player_width, player_height])
@@ -164,11 +214,16 @@ while True:
 
     display_lives()
 
-    score_text = font.render("Score: {}".format(score), True, black)
+    score_text = font.render("점수: {}".format(score), True, black)
     screen.blit(score_text, (10, 10))
 
-    pygame.display.flip()
-    pygame.time.Clock().tick(60)
+    # 플레이어 그리기 대신 이미지 표시
+    screen.blit(player_image, (player_x, player_y))
+    
+    for enemy in enemies:
+        if enemy['alive']:
+            screen.blit(enemy_image, (enemy['x'], enemy['y']))
 
-    if random.randint(0, 100) < 2:
-        spawn_enemy()
+
+    pygame.display.flip()
+    pygame
