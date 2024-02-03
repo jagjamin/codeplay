@@ -13,6 +13,18 @@ width, height = 800, 600
 screen = pygame.display.set_mode((width, height))
 pygame.display.set_caption("Galaga Clone")
 
+# 배경 이미지 경로
+background_image_path = "ai_project\storytelling\image\제목 없음.png"  # 배경 이미지 파일 경로
+background_image = pygame.image.load(background_image_path)
+background_image = pygame.transform.scale(background_image, (width, height))
+
+opening_lines = ['''지구온난화의 주범을 박사 온 박사가 찾아냈다.
+                 주범은 외계인이다.
+                 외계인을 죽이기 위해 토르크 막토를 보냈다.'''
+    
+]
+
+
 # 색상 정의
 white = (255, 255, 255)
 black = (0, 0, 0)
@@ -24,7 +36,10 @@ green = (0, 255, 0)
 font_path = "ai_project/storytelling/font/k_font.ttf"  # 여기에 폰트 파일 경로를 입력하세요
 font = pygame.font.Font(font_path, 36)
 
-
+# 오프닝 텍스트 설정
+opening_text = "\n".join(opening_lines)
+opening_rendered = font.render(opening_text, True, (255, 255, 255))
+opening_rect = opening_rendered.get_rect(center=(width // 2, height // 2))
 # 플레이어 설정
 player_width, player_height = 30, 30
 player_x = (width - player_width) // 2
@@ -36,13 +51,13 @@ player_image = pygame.transform.scale(player_image, (player_width, player_height
 
 # 총알 설정
 bullet_width, bullet_height = 5, 15
-bullet_speed = 4
+bullet_speed = 6
 bullets = []
 shoot_delay = 0
 
 # 적 설정
 enemy_width, enemy_height = 30, 30
-enemy_speed = 1
+enemy_speed = 3
 enemies = []
 enemy_image_path = "ai_project\storytelling\image\스크린샷_2024-01-27_121632-removebg-preview.png"  # 이미지 파일 경로
 enemy_image = pygame.image.load(enemy_image_path)
@@ -148,10 +163,23 @@ def increase_score():
     if score % 100 == 0:  # 점수가 100의 배수일 때
         shoot_delay_max += shoot_delay_increment
 
+# 게임 루프
+opening_time = 5  # 오프닝 화면 표시 시간 (초)
+start_time = time.time()    
 
 
 # 게임 루프
 while True:
+
+    current_time = time.time()
+
+    # 오프닝 화면 표시
+    if current_time - start_time < opening_time:
+        screen.blit(background_image, (0, 0))
+        screen.blit(opening_rendered, opening_rect)
+        pygame.display.flip()
+        continue  # 오프닝 화면이 표시되면 게임 루프를 건너뜁니다.      
+
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
@@ -198,7 +226,8 @@ while True:
     # 플레이어와 적 충돌 처리
     handle_player_enemy_collision()
 
-    screen.fill(white)
+    
+    screen.blit(background_image, (0, 0))
     pygame.draw.rect(screen, blue, [player_x, player_y, player_width, player_height])
 
     for enemy in enemies:
@@ -214,7 +243,7 @@ while True:
 
     display_lives()
 
-    score_text = font.render("점수: {}".format(score), True, black)
+    score_text = font.render("점수: {}".format(score), True, white)
     screen.blit(score_text, (10, 10))
 
     # 플레이어 그리기 대신 이미지 표시
